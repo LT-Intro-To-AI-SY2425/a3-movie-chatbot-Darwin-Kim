@@ -216,7 +216,7 @@ def query_loop() -> None:
 
     print("\nSo long!\n")
 
-# query_loop()
+query_loop()
 
 if __name__ == "__main__":
     assert isinstance(title_by_year(["1974"]), list), "title_by_year not returning a list"

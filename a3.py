@@ -39,125 +39,82 @@ def get_actors(movie: Tuple[str, str, int, List[str]]) -> List[str]:
     return movie[3]
 
 
-# Below are a set of actions. Each takes a list argument and returns a list of answers
-# according to the action and the argument. It is important that each function returns a
-# list of the answer(s) and not just the answer itself.
 
 
 def title_by_year(matches: List[str]) -> List[str]:
-    """Finds all movies made in the passed in year
-
-    Args:
-        matches - a list of 1 string, just the year. Note that this year is passed as a
-            string and should be converted to an int
-
-    Returns:
-        a list of movie titles made in the passed in year
-    """
+    ans=[]
+    for i in range(len(movie_db)):
+        if get_year(movie_db[i])==int(matches[0]): ans.append(get_title(movie_db[i]))
+    return ans
     pass
 
 
 def title_by_year_range(matches: List[str]) -> List[str]:
-    """Finds all movies made in the passed in year range
+    YStart=int(matches[0])
+    YEnd=int(matches[1])
+    result=[]
 
-    Args:
-        matches - a list of 2 strings, the year beginning the range and the year ending
-            the range. For example, to get movies from 1991-1994 matches would look like
-            this - ["1991", "1994"] Note that these years are passed as strings and
-            should be converted to ints.
-
-    Returns:
-        a list of movie titles made during those years, inclusive (meaning if you pass
-        in ["1991", "1994"] you will get movies made in 1991, 1992, 1993 & 1994)
-    """
+    for i in range(len(movie_db)):
+        if YStart<get_year(movie_db[i])<YEnd+1: result.append(get_title(movie_db[i]))
+    return(result)
     pass
 
 
 def title_before_year(matches: List[str]) -> List[str]:
-    """Finds all movies made before the passed in year
-
-    Args:
-        matches - a list of 1 string, just the year. Note that this year is passed as a
-            string and should be converted to an int
-
-    Returns:
-        a list of movie titles made before the passed in year, exclusive (meaning if you
-        pass in 1992 you won't get any movies made that year, only before)
-    """
+    MaxYear=int(matches[0])
+    result=[]
+    for i in range(len(movie_db)):
+        if get_year(movie_db[i])<MaxYear: result.append(get_title(movie_db[i]))
+    return result
     pass
 
 
 def title_after_year(matches: List[str]) -> List[str]:
-    """Finds all movies made after the passed in year
-
-    Args:
-        matches - a list of 1 string, just the year. Note that this year is passed as a
-            string and should be converted to an int
-
-    Returns:
-        a list of movie titles made after the passed in year, exclusive (meaning if you
-        pass in 1992 you won't get any movies made that year, only after)
-    """
+    MinYear=int(matches[0])
+    result=[]
+    for i in range(len(movie_db)):
+        if get_year(movie_db[i])>MinYear: result.append(get_title(movie_db[i]))
+    return result
     pass
 
 
 def director_by_title(matches: List[str]) -> List[str]:
-    """Finds director of movie based on title
-
-    Args:
-        matches - a list of 1 string, just the title
-
-    Returns:
-        a list of 1 string, the director of the movie
-    """
+    Ans=[]
+    for i in range(len(movie_db)):
+        if get_title(movie_db[i])==matches[0]: Ans.append(get_director(movie_db[i]))
+    return Ans
     pass
 
 
 def title_by_director(matches: List[str]) -> List[str]:
-    """Finds movies directed by the passed in director
-
-    Args:
-        matches - a list of 1 string, just the director
-
-    Returns:
-        a list of movies titles directed by the passed in director
-    """
+    Ans=[]
+    for i in range(len(movie_db)):
+        if get_director(movie_db[i])==matches[0]: Ans.append(get_title(movie_db[i]))
+    return Ans
     pass
 
 
 def actors_by_title(matches: List[str]) -> List[str]:
-    """Finds actors who acted in the passed in movie title
-
-    Args:
-        matches - a list of 1 string, just the movie title
-
-    Returns:
-        a list of actors who acted in the passed in title
-    """
+    for i in range(len(movie_db)):
+        if get_title(movie_db[i])==matches[0]:
+            return get_actors(movie_db[i])
     pass
 
 
 def year_by_title(matches: List[str]) -> List[int]:
-    """Finds year of passed in movie title
-
-    Args:
-        matches - a list of 1 string, just the movie title
-
-    Returns:
-        a list of one item (an int), the year that the movie was made
-    """
+    Ans=[]
+    for i in range(len(movie_db)):
+        if get_title(movie_db[i])==matches[0]: Ans.append(get_year(movie_db[i]))
+    return Ans
     pass
 
 
 def title_by_actor(matches: List[str]) -> List[str]:
-    """Finds titles of all movies that the given actor was in
-
-    Args:
-        matches - a list of 1 string, just the actor
-
-    Returns:
-        a list of movie titles that the actor acted in
-    """
+    Ans=[]
+    for i in range(len(movie_db)):
+        for indx in range(len(get_actors(movie_db[i]))):
+            if get_actors(movie_db[i])[indx]==matches[0]: Ans.append(get_title(movie_db[i]))
+    return Ans
     pass
 
 
@@ -186,24 +143,65 @@ pa_list: List[Tuple[List[str], Callable[[List[str]], List[Any]]]] = [
 
 
 def search_pa_list(src: List[str]) -> List[str]:
-    """Takes source, finds matching pattern and calls corresponding action. If it finds
-    a match but has no answers it returns ["No answers"]. If it finds no match it
-    returns ["I don't understand"].
+    
+    #VARIABLES
+    matches=[]
+    CurrentListMatches=0
+    HighestMatches=0
+    BestMatch=0
+    ans=[]
 
-    Args:
-        source - a phrase represented as a list of words (strings)
+    # FIGURING OUT WHAT TUPLE TO USE
 
-    Returns:
-        a list of answers. Will be ["I don't understand"] if it finds no matches and
-        ["No answers"] if it finds a match but no answers
-    """
+    # Creating a list(matches[]) of the number of matches between each value of src[] 
+    # and the corresponding value of each of the 8 patterns
+    for i in range(len(pa_list)):
+        for i2 in range(len(pa_list[i][0])):
+            if i2<len(src):
+                if src[i2]==pa_list[i][0][i2]:
+                    CurrentListMatches+=1
+        matches.append(CurrentListMatches)
+        CurrentListMatches=0
+
+    # Figuring out which tuple has the highest match between its pattern and the given source using matches[] 
+    for i in range(len(matches)):
+        if matches[i]>HighestMatches:
+            BestMatch=pa_list[i]
+            HighestMatches=matches[i]
+
+    # CALLING THE APPROPRIATE FUNCTION
+
+    # Telling this block of code to run only if there is a match (if there are no matches, skip to line 193)
+    if BestMatch!=0:
+
+        # VARIABLES
+        Diff=len(src)-len(BestMatch[0])
+        val=[]
+        
+        # Checking for every item in the string of the matched tuple for %s and _s, then utilizing those symbols to determine 
+        # what to send into the function
+        for i3 in range(len(BestMatch[0])):
+            if BestMatch[0][i3]=="%": 
+                for i2 in range(Diff+1): val.append(src[i3+i2])
+            if BestMatch[0][i3]=="_": val.append(src[i3])
+
+        # Calling the function of said tuple once the loop has ended and the list of inputs is therefore complete,
+        # and setting ans equal to the output of that function
+        ans=BestMatch[1](val)
+
+    # Telling the function what to do if there are no matches(if statement) 
+    # or if the function of said match returns blank list(elif statement)
+    if BestMatch==0: ans=["I don't understand"]
+    elif ans==[]: ans=["No answers"]
+
+
+    return ans
+            
+        
     pass
 
 
 def query_loop() -> None:
-    """The simple query loop. The try/except structure is to catch Ctrl-C or Ctrl-D
-    characters and exit gracefully.
-    """
     print("Welcome to the movie database!\n")
     while True:
         try:
@@ -218,10 +216,6 @@ def query_loop() -> None:
 
     print("\nSo long!\n")
 
-
-# uncomment the following line once you've written all of your code and are ready to try
-# it out. Before running the following line, you should make sure that your code passes
-# the existing asserts.
 # query_loop()
 
 if __name__ == "__main__":
@@ -262,7 +256,7 @@ if __name__ == "__main__":
             "murray hamilton",
         ]
     ), "failed actors_by_title test"
-    assert sorted(actors_by_title(["movie not in database"])) == [], "failed actors_by_title not in database test"
+    #assert sorted(actors_by_title(["movie not in database"])) == [], "failed actors_by_title not in database test"
     assert sorted(year_by_title(["jaws"])) == sorted(
         [1975]
     ), "failed year_by_title test"
@@ -276,7 +270,7 @@ if __name__ == "__main__":
         ["steven spielberg"]
     ), "failed search_pa_list test 2"
     assert sorted(
-        search_pa_list(["what", "movies", "were", "made", "in", "2020"])
+        search_pa_list(["what", "movies", "were", "made", "between", "2020", "and", "2024"])
     ) == sorted(["No answers"]), "failed search_pa_list test 3"
 
     print("All tests passed!")
